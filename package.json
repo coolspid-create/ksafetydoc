@@ -1,0 +1,28 @@
+{
+  "name": "kordoc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"node --watch server.js\" \"npm run dev --prefix client\"",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jszip": "^3.10.1",
+    "kordoc": "^1.6.1",
+    "multer": "^2.1.1",
+    "openai": "^6.33.0",
+    "pdfjs-dist": "^5.6.205"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
