@@ -70,7 +70,7 @@ async function refineWithGPT4o(markdown) {
 
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-5.3-instant",
         temperature: 0,
         top_p: 1,
         max_tokens: 4000, 
