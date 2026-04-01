@@ -1,5 +1,5 @@
 import fs from 'fs';
-const data = JSON.parse(fs.readFileSync('kordoc_debug_tables.json', 'utf8'));
+const data = JSON.parse(fs.readFileSync('ksafetydoc_debug_tables.json', 'utf8'));
 // Analyze first 2 tables
 for (let ti = 0; ti < Math.min(data.length, 2); ti++) {
   const t = data[ti].table;

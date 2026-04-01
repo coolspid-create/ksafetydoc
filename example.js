@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 /**
- * Basic usage example for kordoc
+ * Basic usage example for Ksafety Doc engine
  * Note: You need a .hwpx, .hwp, or .pdf file to run this properly.
  */
 async function run() {
@@ -19,8 +19,8 @@ async function run() {
     //   console.error("Failed to parse:", result.error);
     // }
 
-    console.log("kordoc is successfully installed!");
-    console.log("Check the kordoc documentation at https://github.com/chrisryugj/kordoc for more details.");
+    console.log("Ksafety Doc engine is successfully initialized!");
+    console.log("Documentation is available at the repository.");
 
   } catch (error) {
     console.error("An error occurred:", error);

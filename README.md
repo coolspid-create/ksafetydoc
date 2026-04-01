@@ -1,6 +1,6 @@
-# Kordoc Project
+# Ksafety Doc
 
-This project uses `kordoc` to parse Korean documents (HWP, HWPX, PDF) into Markdown.
+This project is a smart document intelligence service powered by `kordoc`, designed to parse Korean documents (HWP, HWPX, PDF) into structured Markdown, JSON, and XML.
 
 ## Installation
 

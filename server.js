@@ -164,7 +164,7 @@ function normalizeMarkdown(markdown) {
       result.push('');
     }
 
-    // 8. <br> 태그를 실제 줄바꿈으로 변환 (kordoc이 표 안에서 <br> 사용)
+    // 8. <br> 태그를 실제 줄바꿈으로 변환 (파서가 표 안에서 <br> 사용)
     if (!isTableLine) {
       line = line.replace(/<br\s*\/?>/gi, '  \n');
     }
@@ -542,7 +542,7 @@ app.post("/api/convert", upload.single("file"), async (req, res) => {
         formConfidence = formResult.confidence;
       }
 
-      fs.writeFileSync("kordoc_debug_raw.md", result.markdown, "utf8");
+      fs.writeFileSync("ksafetydoc_debug_raw.md", result.markdown, "utf8");
       
       // 블록 데이터에서 HTML 테이블 생성 (셀 병합 보존)
       const htmlTables = blocksToHtmlTables(result.blocks);
@@ -550,7 +550,7 @@ app.post("/api/convert", upload.single("file"), async (req, res) => {
       // 테이블 블록 디버그 정보 저장
       if (result.blocks) {
         const tableBlocks = result.blocks.filter(b => b.type === 'table');
-        fs.writeFileSync("kordoc_debug_tables.json", JSON.stringify(tableBlocks, null, 2), "utf8");
+        fs.writeFileSync("ksafetydoc_debug_tables.json", JSON.stringify(tableBlocks, null, 2), "utf8");
         console.log(`[Tables] ${tableBlocks.length}개 테이블 감지, ${htmlTables.length}개 HTML 변환 완료`);
       }
       
@@ -599,7 +599,7 @@ app.post("/api/convert", upload.single("file"), async (req, res) => {
         finalMarkdown += imageSection;
       }
       
-      fs.writeFileSync("kordoc_debug_final.md", finalMarkdown, "utf8");
+      fs.writeFileSync("ksafetydoc_debug_final.md", finalMarkdown, "utf8");
 
       const parsedJson = markdownToJSON(finalMarkdown);
       const parsedXml = jsonToXML(parsedJson);

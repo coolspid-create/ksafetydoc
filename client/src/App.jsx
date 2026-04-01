@@ -164,8 +164,8 @@ const App = () => {
                  <FileText className="text-white w-7 h-7" />
               </div>
               <div className="flex flex-col flex-1 shrink-0">
-                 <h1 className="text-2xl font-bold tracking-tight text-indigo-500 mb-0 m-0 gradient-text">KPSA Doc AI</h1>
-                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Enterprise Document Intelligence</p>
+                 <h1 className="text-2xl font-bold tracking-tight text-indigo-500 mb-0 m-0 gradient-text">Ksafety Doc</h1>
+                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Smart Document Intelligence</p>
               </div>
            </div>
            

@@ -1,8 +1,8 @@
 node_modules
 .env
-kordoc_debug_raw.md
-kordoc_debug_refined.md
-kordoc_debug_tables.json
-kordoc_debug_final.md
+ksafetydoc_debug_raw.md
+ksafetydoc_debug_refined.md
+ksafetydoc_debug_tables.json
+ksafetydoc_debug_final.md
 extracted_images/
 .DS_Store
