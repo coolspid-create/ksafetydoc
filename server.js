@@ -64,13 +64,13 @@ async function refineWithGPT4o(markdown) {
   let previousContext = "";
 
   for (let i = 0; i < chunks.length; i++) {
-    console.log(`[AI] 섹션 [${i + 1}/${chunks.length}] 처리 중 (gpt-4o)...`);
+    console.log(`[AI] 섹션 [${i + 1}/${chunks.length}] 처리 중 (gpt-5.4-mini)...`);
     
     const contextPrompt = previousContext ? `\n\n[이전 조각의 마지막 500자 문맥]:\n${previousContext}\n\n[진단 안내]: 당신은 위 내용 바로 다음을 처리하고 있습니다. 문장이 잘리지 않게 자연스럽게 연결하십시오.\n` : "";
 
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-5.3-instant",
+        model: "gpt-5.4-mini",
         temperature: 0,
         top_p: 1,
         max_tokens: 4000, 

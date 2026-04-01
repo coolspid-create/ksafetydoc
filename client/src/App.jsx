@@ -262,7 +262,7 @@ const App = () => {
                              </label>
                              <label className="flex items-center justify-between cursor-pointer group p-3 bg-white rounded-xl border border-slate-700" style={{ borderColor: '#e2e8f0' }}>
                                 <div className="flex flex-col">
-                                   <span className="text-sm font-bold text-slate-600">AI 정제 모드 (GPT-5.3-Instant)</span>
+                                   <span className="text-sm font-bold text-slate-600">AI 정제 모드 (GPT-5.4-mini)</span>
                                    <span className="text-xs text-slate-400" style={{ marginTop: '0.25rem' }}>GPT가 텍스트를 재정리합니다. 처리 시간이 길어집니다.</span>
                                 </div>
                                 <div className={`flex items-center rounded-full p-1 transition-colors ${useAi ? 'bg-indigo-500' : 'bg-slate-800'}`} style={{ width: '2.5rem', height: '1.5rem', backgroundColor: useAi ? '#003882' : '#cbd5e1' }} onClick={()=>setUseAi(!useAi)}>
