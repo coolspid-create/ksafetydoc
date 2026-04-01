@@ -9,11 +9,15 @@ import 'dotenv/config';
 import JSZip from "jszip";
 import { fileURLToPath } from 'url';
 
+import os from "os";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 추출된 이미지 저장 디렉토리
-const IMAGES_DIR = path.join(__dirname, 'extracted_images');
+// Vercel(Serverless) 호환성을 위한 임시 저장 디렉토리 설정
+const IS_VERCEL = process.env.VERCEL || process.env.NOW_BUILDER;
+const IMAGES_DIR = IS_VERCEL ? path.join(os.tmpdir(), 'extracted_images') : path.join(__dirname, 'extracted_images');
+
 if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
 
 const app = express();
@@ -60,30 +64,37 @@ async function refineWithGPT4o(markdown) {
   let previousContext = "";
 
   for (let i = 0; i < chunks.length; i++) {
-    console.log(`[AI] 섹션 [${i + 1}/${chunks.length}] 처리 중 (o1-preview)...`);
+    console.log(`[AI] 섹션 [${i + 1}/${chunks.length}] 처리 중 (gpt-4o)...`);
     
-    const contextPrompt = previousContext ? `\n\n[이전 조각의 마지막 500자 문맥]:\n${previousContext}\n\n[진단 안내]: 당신은 위 내용 바로 다음을 처리하고 있습니다. 순서가 끊기지 않게 연결하십시오.\n` : "";
+    const contextPrompt = previousContext ? `\n\n[이전 조각의 마지막 500자 문맥]:\n${previousContext}\n\n[진단 안내]: 당신은 위 내용 바로 다음을 처리하고 있습니다. 문장이 잘리지 않게 자연스럽게 연결하십시오.\n` : "";
 
     try {
       const response = await openai.chat.completions.create({
-        model: "o1-preview",
-        max_completion_tokens: 10000, 
+        model: "gpt-4o",
+        temperature: 0,
+        top_p: 1,
+        max_tokens: 4000, 
         messages: [
           {
+            role: "system",
+            content: "당신은 뒤섞인 문서 텍스트를 한 글자도 바꾸지 않고 논리적으로 재구성하는 '절대적 무결성 문서 정제 전문가'입니다."
+          },
+          {
             role: "user",
-            content: `당신은 문서의 순서를 1mm도 틀리지 않는 '절대적 법령 텍스트 복사기'입니다. 당신의 지능을 발휘하여 아래의 [새로운 조각]을 정제하되, 다음의 [복사기 절대 규칙]을 따르세요.
+            content: `아래 [새로운 조각]의 텍스트가 PDF 파싱 레이아웃 문제로 인해 조항 순서가 뒤섞이고 문장이 중간에 잘려 있습니다. 다음 규칙을 엄격히 따라 정제해 주세요.
 
-[복사기 절대 규칙]
-1. [지문 누락 0%]: 원문 텍스트에 있는 모든 조문(제N조), 모든 항(1.), 모든 호, 부칙, 별표 등을 단 한 글자도 빠뜨리지 말고 입력된 순서 "그대로" 출력하십시오.
-2. [순서 일체성]: 원문의 순서를 절대 변경하거나 건너뛰지 마십시오.
-3. [구조적 정제]: 불필요한 강조 기호(**, ##)는 삭제하되, 표(Table) 문법은 반드시 줄바꿈(Enter)을 포함하여 유지하십시오.
-4. [문맥 앵커]: [이전 조각의 마지막 문맥]이 주어집니다. 이를 확인하여 연결하십시오.
+[절대 규칙 - 무결성 우선]
+1. [창작 금지]: 절대로 새로운 내용, 단어, 보조 설명, 각주 등을 지어내지 마십시오. 오직 주어진 [새로운 조각] 내의 텍스트만 사용하십시오. (가장 중요)
+2. [논리적 재정렬]: 제1조(목적), 제2조(적용범위)와 같은 조항(Article) 번호를 기준으로 텍스트를 논리적인 오름차순으로 재배치하십시오.
+3. [문장 복원]: 문맥상 문장 중간에서 부자연스럽게 잘린(Line-break) 부분은 하나의 완성된 문장으로 이어 붙이십시오. (다., 함. 으로 마치는 완성된 문맥 형성)
+4. [구조 유지]: 표(Table)는 마크다운 표 문법(|---|)을 유지하되, 내용은 원문 그대로 두십시오.
+5. [문맥 연결]: [이전 조각의 마지막 문맥]을 확인하여 중복 없이 자연스럽게 연결하십시오.
 
 ${contextPrompt}
 [새로운 조각]: 
 ${chunks[i]}
 
-오직 정제된 본문 텍스트(또는 표)만 응답하십시오.`
+어떤 설명도 덧붙이지 말고 오직 정제된 본문 결과만 반환하십시오.`
           }
         ],
       });
@@ -532,7 +543,7 @@ app.post("/api/convert", upload.single("file"), async (req, res) => {
       };
     }
 
-    const result = await parse(req.file.buffer.buffer, parseOptions);
+    const result = await parse(req.file.buffer, parseOptions);
     if (result.success) {
       let formFields = null;
       let formConfidence = null;
@@ -542,13 +553,13 @@ app.post("/api/convert", upload.single("file"), async (req, res) => {
         formConfidence = formResult.confidence;
       }
 
-      fs.writeFileSync("ksafetydoc_debug_raw.md", result.markdown, "utf8");
+      // fs.writeFileSync("ksafetydoc_debug_raw.md", result.markdown, "utf8");
       
       // 블록 데이터에서 HTML 테이블 생성 (셀 병합 보존)
       const htmlTables = blocksToHtmlTables(result.blocks);
       
-      // 테이블 블록 디버그 정보 저장
-      if (result.blocks) {
+      // 테이블 블록 디버그 정보 저장 (서버리스 환경에서는 비활성화 가능)
+      if (result.blocks && !IS_VERCEL) {
         const tableBlocks = result.blocks.filter(b => b.type === 'table');
         fs.writeFileSync("ksafetydoc_debug_tables.json", JSON.stringify(tableBlocks, null, 2), "utf8");
         console.log(`[Tables] ${tableBlocks.length}개 테이블 감지, ${htmlTables.length}개 HTML 변환 완료`);
@@ -599,7 +610,7 @@ app.post("/api/convert", upload.single("file"), async (req, res) => {
         finalMarkdown += imageSection;
       }
       
-      fs.writeFileSync("ksafetydoc_debug_final.md", finalMarkdown, "utf8");
+      // fs.writeFileSync("ksafetydoc_debug_final.md", finalMarkdown, "utf8");
 
       const parsedJson = markdownToJSON(finalMarkdown);
       const parsedXml = jsonToXML(parsedJson);
@@ -616,7 +627,11 @@ app.post("/api/convert", upload.single("file"), async (req, res) => {
         imageSessionId: sessionId
       });
     } else {
-      res.status(500).json({ success: false, error: "HWP 파싱 실패" });
+      res.status(500).json({ 
+        success: false, 
+        error: result.error || "문서 분석에 실패했습니다.",
+        code: result.code || "PARSE_ERROR"
+      });
     }
   } catch (error) {
     console.error("Server Error:", error);
@@ -658,6 +673,10 @@ app.post("/api/export/hwpx", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+  });
+}
+
+export default app;
